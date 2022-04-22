@@ -78,3 +78,9 @@ def string_to_date(s):
     m = int(date[1])
     d = int(date[2])
     return datetime.date(y,m,d)
+
+def deltaDay(d1,d2):
+    r1 = string_to_date(d1)
+    r2 = string_to_date(d2)
+    res = r1 - r2
+    return res.days

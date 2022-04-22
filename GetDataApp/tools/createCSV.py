@@ -15,14 +15,14 @@ def initCSV(n_fic, n_col):
         obj = csv.DictWriter(fichier, fieldnames=n_col)
         obj.writeheader()
 
-def createCSV_Sleep (n_fic, rq, date):
+def createCSV_Sleep (n_fic, rq):
 
     fichier = open(n_fic,'a')
     with fichier:    
         obj = csv.DictWriter(fichier, fieldnames=col_sleep)
         for v in rq:
             res = dict()
-            res['date'] = date
+            res['date'] = v["dateOfSleep"]
             res['minutesAwake'] = v["minutesAwake"]
             res['minutesAsleep'] = v["minutesAsleep"]
             res['minutesToFallAsleep'] = v["minutesToFallAsleep"]
@@ -39,12 +39,12 @@ def createCSV_HR (n_fic, rq, date):
             v['date'] = date
             obj.writerow(v)
 
-def createCSV_INTRA(n_fic, rq, date):
+def createCSV_INTRA(n_fic, rq):
     fichier = open(n_fic,'a')
     with fichier:    
         obj = csv.DictWriter(fichier, fieldnames=col_intra)
         for v in rq:
             res = dict()
-            res['date'] = date
+            res['date'] = v["dateTime"]
             res['value'] = v["value"]
             obj.writerow(res)

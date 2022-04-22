@@ -8,7 +8,8 @@ from tkinter import filedialog as fd
 import os
 
 from tools.createCSV import createCSV_HR, createCSV_Sleep, initCSV, createCSV_INTRA, col_sleep, col_hr, col_intra
-from tools.string_date_module import isValidDate, date_to_string, string_to_date
+from tools.string_date_module import isValidDate, date_to_string, string_to_date, deltaDay
+from tools.showGraph import grapheHRbyFen, graphIntraByDay
 
 
 
@@ -38,9 +39,9 @@ def placeComponentConnexion():
 def placeComponentHR():
     label_INFO_HR.grid(row = 0, columnspan=2, sticky=tk.E+tk.W)
     label_DATE.grid(row = 1, column = 0)
-    entry_DATE.grid(row = 1, column = 1)
+    entry_DATE_START.grid(row = 1, column = 1)
     label_TIME.grid(row=2, column=0)
-    entry_TIME.grid(row = 2, column= 1)
+    entry_DATE_END.grid(row = 2, column= 1)
     button_GETHR.grid(row = 3, column= 0)
     button_RETURN.grid(row = 3, column= 1)
 
@@ -48,18 +49,18 @@ def placeComponentHR():
 def placeComponentSleep():
     label_INFO_HR.grid(row = 0, columnspan=2, sticky=tk.E+tk.W)
     label_DATE.grid(row = 1, column = 0)
-    entry_DATE.grid(row = 1, column = 1)
+    entry_DATE_START.grid(row = 1, column = 1)
     label_TIME.grid(row=2, column=0)
-    entry_TIME.grid(row = 2, column= 1)
+    entry_DATE_END.grid(row = 2, column= 1)
     button_GETSLEEP.grid(row = 3, column= 0)
     button_RETURN.grid(row = 3, column= 1)
 
 def placeComponentIntraday():
     label_INFO_HR.grid(row = 0, columnspan=2, sticky=tk.E+tk.W)
     label_DATE.grid(row = 1, column = 0)
-    entry_DATE.grid(row = 1, column = 1)
+    entry_DATE_START.grid(row = 1, column = 1)
     label_TIME.grid(row=2, column=0)
-    entry_TIME.grid(row = 2, column= 1)
+    entry_DATE_END.grid(row = 2, column= 1)
     button_STEPS.grid(row = 3, column= 0)
     button_FLOORS.grid(row = 3, column= 1)
     button_CALORIES.grid(row = 3, column= 2)
@@ -80,55 +81,57 @@ def quit_data():
     app_CONNEXION.deiconify()
 
 def isValidChamp():
-    if ((entry_DATE.get() == "") | (entry_TIME.get() == "")):
+    if ((entry_DATE_START.get() == "") | (entry_DATE_END.get() == "")):
         mb.showerror("Erreur", "Veuillez remplir tous les champs")
         return False
-    if(not(isValidDate(entry_DATE.get()))):
-        mb.showerror("Erreur", "Le champ date n'est pas de la bonne forme ou la date n'existe pas\n Exemple 2022-04-21 (YYYY-MM-DD)")
+    if(not(isValidDate(entry_DATE_START.get()))):
+        mb.showerror("Erreur", "Le champ date de debut n'est pas de la bonne forme ou la date n'existe pas\n Exemple 2022-04-21 (YYYY-MM-DD)")
         return False
-    if(not(entry_TIME.get().isdigit())):
-        mb.showerror("Erreur", "Le champ temps n'est pas un nombre")
+    if(not(isValidDate(entry_DATE_END.get()))):
+        mb.showerror("Erreur", "Le champ date de fin n'est pas de la bonne forme ou la date n'existe pas\n Exemple 2022-04-21 (YYYY-MM-DD)")
         return False
     return True
 
 def action(action):
     if(not(isValidChamp())):
-        return
-    d = string_to_date(entry_DATE.get())
-    end_date = date_to_string(d + timedelta(int(entry_TIME.get()) - 1))
+      return
+    d = string_to_date(entry_DATE_START.get())
     if(action == "sleep"):
-        nom_fichier = 'data_sleep_' + entry_DATE.get() + '_to_'+ end_date + '.csv'
+        nom_fichier = 'data/data_sleep_' + entry_DATE_START.get() + '_to_'+ entry_DATE_END.get() + '.csv'
         initCSV(nom_fichier, col_sleep)
     elif(action =="hr"):
-        nom_fichier = 'data_heart_rate_' + entry_DATE.get() + '_to_'+ end_date + '.csv'
+        nom_fichier = 'data/data_heart_rate_' + entry_DATE_START.get() + '_to_'+ entry_DATE_END.get() + '.csv'
         initCSV(nom_fichier, col_hr)
     else:
-        nom_fichier = 'data_' + action + '_' + entry_DATE.get() + '_to_' + end_date + '.csv'
+        nom_fichier = 'data/data_' + action + '_' + entry_DATE_START.get() + '_to_' + entry_DATE_END.get() + '.csv'
         initCSV(nom_fichier, col_intra)  
-    for i in range(int(entry_TIME.get())):
-        str_d = date_to_string(d)
-        if(action == "sleep"):
-            fit_statsSleep = client.get_sleep(d)
-            createCSV_Sleep(nom_fichier, fit_statsSleep['sleep'], str_d)
-        elif(action == "hr"):
+    if(action == "sleep"):
+        url = "https://api.fitbit.com/1.2/user/-/sleep/date/"+ entry_DATE_START.get() + "/" + entry_DATE_END.get() + ".json"
+        fit_statsSleep = client.make_request(url)
+        createCSV_Sleep(nom_fichier, fit_statsSleep['sleep'])
+    elif(action == "hr"):
+        
+        for i in range(deltaDay(entry_DATE_END.get(), entry_DATE_START.get()) + 1):
+            str_d = date_to_string(d)
             fit_statsHR = client.intraday_time_series('activities/heart', base_date= str_d, detail_level='1min')
             createCSV_HR(nom_fichier, fit_statsHR['activities-heart-intraday']['dataset'], str_d)
-        else:
-            fit_statsSteps = client.intraday_time_series('activities/' + action , base_date= str_d, detail_level='1min')
-            createCSV_INTRA(nom_fichier, fit_statsSteps['activities-' + action], str_d)
-        d = d + timedelta(1)
+            d = d + timedelta(1)
+    else:
+        fit_statsSteps = client.time_series('activities/' + action , base_date= entry_DATE_START.get(), end_date=entry_DATE_END.get())
+        createCSV_INTRA(nom_fichier, fit_statsSteps['activities-' + action])
+    
     mb.showinfo("Succes", "Le fichier a été créer")
 
 
 def getSleep():
-    global appDATA, button_GETSLEEP, label_INFO_HR, label_DATE, entry_DATE, button_RETURN, entry_TIME, label_TIME
+    global appDATA, button_GETSLEEP, label_INFO_HR, label_DATE, entry_DATE_START, button_RETURN, entry_DATE_END, label_TIME
     appDATA = tk.Toplevel(app_CONNEXION)
     app_CONNEXION.withdraw()
     label_INFO_HR = tk.Label(appDATA, text="Vous pouve récupérer les données de sommeil a partir d'un date donnée et un nombre de jour")
     label_DATE = tk.Label(appDATA, text="Quel jour de debut ?")
-    entry_DATE = tk.Entry(appDATA)
-    label_TIME = tk.Label(appDATA, text="Combien de jours ?")
-    entry_TIME = tk.Entry(appDATA)
+    entry_DATE_START = tk.Entry(appDATA)
+    label_TIME = tk.Label(appDATA, text="Quel jour de fin ?")
+    entry_DATE_END = tk.Entry(appDATA)
     button_GETSLEEP = tk.Button(appDATA, text="GET SLEEP", command=lambda: action("sleep"))
     button_RETURN = tk.Button(appDATA, text="RETURN", command=quit_data)
 
@@ -136,14 +139,14 @@ def getSleep():
     appDATA.protocol("WM_DELETE_WINDOW", on_closing)
 
 def getHR():
-    global appDATA, button_GETHR, label_INFO_HR, label_DATE, entry_DATE, button_RETURN, entry_TIME, label_TIME
+    global appDATA, button_GETHR, label_INFO_HR, label_DATE, entry_DATE_START, button_RETURN, entry_DATE_END, label_TIME
     appDATA = tk.Toplevel(app_CONNEXION)
     app_CONNEXION.withdraw()
     label_INFO_HR = tk.Label(appDATA, text="Vous pouve récupérer le HR a partir d'un date donnée et un nombre de jour")
     label_DATE = tk.Label(appDATA, text="Quel jour de debut ?")
-    entry_DATE = tk.Entry(appDATA)
-    label_TIME = tk.Label(appDATA, text="Combien de jours ?")
-    entry_TIME = tk.Entry(appDATA)
+    entry_DATE_START = tk.Entry(appDATA)
+    label_TIME = tk.Label(appDATA, text="Quel jour de fin ?")
+    entry_DATE_END = tk.Entry(appDATA)
     button_GETHR = tk.Button(appDATA, text="GET HEARTRATE", command=lambda: action("hr"))
     button_RETURN = tk.Button(appDATA, text="RETURN", command=quit_data)
 
@@ -154,15 +157,15 @@ def getIntraday():
     global appDATA
     global button_STEPS, button_FLOORS, button_CALORIES, button_DISTANCE, button_ELEVATION, button_RETURN
     global label_INFO_HR, label_DATE, label_TIME
-    global entry_DATE, entry_TIME
+    global entry_DATE_START, entry_DATE_END
 
     appDATA = tk.Toplevel(app_CONNEXION)
     app_CONNEXION.withdraw()
     label_INFO_HR = tk.Label(appDATA, text="Vous pouve récupérer un bon nombre de donnée si dessous")
     label_DATE = tk.Label(appDATA, text="Quel jour de debut ?")
-    entry_DATE = tk.Entry(appDATA)
-    label_TIME = tk.Label(appDATA, text="Combien de jours ?")
-    entry_TIME = tk.Entry(appDATA)
+    entry_DATE_START = tk.Entry(appDATA)
+    label_TIME = tk.Label(appDATA, text="Quel jour de fin ?")
+    entry_DATE_END = tk.Entry(appDATA)
     button_STEPS = tk.Button(appDATA, text="GET STEPS", command=lambda: action("steps"))
     button_FLOORS = tk.Button(appDATA, text="GET FLOORS", command=lambda: action("floors"))
     button_CALORIES = tk.Button(appDATA, text="GET CALORIES", command=lambda: action("calories"))
@@ -183,7 +186,9 @@ def connect_client():
     server = Oauth2.OAuth2Server(CLIENT_ID, CLIENT_SECRET)
     server.browser_authorize()
     ACCESS_TOKEN = str(server.fitbit.client.session.token['access_token'])
+    print(ACCESS_TOKEN)
     REFRESH_TOKEN = str(server.fitbit.client.session.token['refresh_token'])
+    print(REFRESH_TOKEN)
     client = fitbit.Fitbit(CLIENT_ID, CLIENT_SECRET, oauth2=True, access_token=ACCESS_TOKEN, refresh_token=REFRESH_TOKEN)
     nom = client.user_profile_get()['user']['fullName']
 
@@ -200,14 +205,16 @@ def connect_client():
     app.withdraw()
     app_CONNEXION.protocol("WM_DELETE_WINDOW", on_closing)
 
+# A FINIR -------------------------------------------------------------
+# TESTER LE NOM DU FICHIER POUR FAIRE APPEL A LA BONNE FONCTION
 def browseFiles(): 
     filename = fd.askopenfilename(initialdir = os.getcwd(), 
-                                          title = "Select a File", 
-                                          filetypes = (("Text files", 
-                                                        "*.csv*"), 
-                                                       ("all files", 
-                                                        "*.*"))) 
-    print(filename)
+                                  title = "Select a File", 
+                                  filetypes = (("Text files", "*.csv*"), 
+                                               ("all files", "*.*"))) 
+    graphIntraByDay(filename, "floors")
+# -------------------------------------------------------------
+    
 
 def show_graph():
     global app_graph
