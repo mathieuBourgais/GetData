@@ -1,8 +1,9 @@
+from cProfile import label
 import csv
 import numpy as np
 import matplotlib.pyplot as plt
 
-file = "/home/bdombry/Documents/GetDataApp/data/data_steps_2022-04-01_to_2022-04-30.csv"
+file = "/home/bdombry/Documents/GetDataApp/data/data_sleep_2022-04-01_to_2022-04-30.csv"
 file2 = "/home/bdombry/Documents/GetDataApp/data/data_distance_2022-04-01_to_2022-04-30.csv"
 file3 = "/home/bdombry/Documents/GetDataApp/data/data_heart_rate_2022-04-05_to_2022-04-07.csv"
 
@@ -82,6 +83,50 @@ def grapheHRbyFen(fic, MIN, jour_debut, min_debut, jour_fin, min_fin):
     plt.plot(x, y)
     plt.xticks(list_x_moy, list_min_moy, color='r', rotation="vertical")
     plt.title("HR / Min")
+    plt.show(block = False)
+
+def graphSleepByDay(file):
+    list_mAwake = []
+    list_mAsleep = []
+    list_mFallAsleep = []
+    list_timeIn = []
+    list_x = []
+    list_date = []
+    with open(file, 'r') as f:
+        obj = csv.reader(f)
+        for ligne in obj:
+            if(ligne[0] != 'date'):
+                list_date.append(ligne[0])
+            if(ligne[1] != "minutesAwake"):
+                list_mAwake.append(int(ligne[1]))
+            if(ligne[2] != "minutesAsleep"):
+                list_mAsleep.append(int(ligne[2]))
+            if(ligne[3] != "minutesToFallAsleep"):
+                list_mFallAsleep.append(int(ligne[3]))
+            if(ligne[4] != "timeInBed"):
+                list_timeIn.append(int(ligne[4]))
+    
+    for i in range(len(list_mAwake)):
+        list_x.append(i)
+
+    print(list_x)
+    list_date.reverse()
+    print(list_date)
+
+    x = np.array(list_x)
+    y_Awake = np.array(list_mAwake)
+    y_Asleep = np.array(list_mAsleep)
+    y_FallAsleep = np.array(list_mFallAsleep)
+    y_TimeIn = np.array(list_timeIn)
+
+    plt.plot(x,y_Awake, label="Minutes Awake") 
+    plt.plot(x,y_Asleep, label="Minutes Asleep")
+    plt.plot(x,y_FallAsleep, label="Minutes To Fall Asleep")
+    plt.plot(x,y_TimeIn, label="Time In Bed")
+
+    plt.xticks(list_x, list_date, color='r', rotation="vertical")
+    plt.title("SleepData / Days")
+    plt.legend()
     plt.show()
 
 

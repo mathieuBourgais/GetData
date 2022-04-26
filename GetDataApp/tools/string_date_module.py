@@ -60,6 +60,32 @@ def isValidDate(str):
     else:
         return True
 
+def isValidFormatTime(str):
+    t = str.split(':')
+    if (len(t) != 3):
+        return False
+    elif((len(t[0]) != 2) | (len(t[1]) != 2) | (len(t[2]) != 2)):
+        return False
+    else:
+        for i in range(3):
+            for j in t[i]:
+                try:
+                    v = int(j)
+                except:
+                    return False
+        return True
+
+def isValidTime(str):
+    if (not(isValidFormatTime(str))):
+        return False
+    t = str.split(':')
+    h = int(t[0])
+    m = int(t[1])
+    s = int(t[1])
+    if((h > 23) | (m > 59) | (s > 59)):
+        return False
+    return True
+
 # Converti un objet de type Date en une chaine de caractere de type "YYYY-MM-DD"
 def date_to_string(date):
 
