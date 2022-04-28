@@ -1,90 +1,45 @@
-from cProfile import label
 import csv
 import numpy as np
 import matplotlib.pyplot as plt
+from tkinter import messagebox as mb
 
-file = "/home/bdombry/Documents/GetDataApp/data/data_sleep_2022-04-01_to_2022-04-30.csv"
-file2 = "/home/bdombry/Documents/GetDataApp/data/data_distance_2022-04-01_to_2022-04-30.csv"
-file3 = "/home/bdombry/Documents/GetDataApp/data/data_heart_rate_2022-04-05_to_2022-04-07.csv"
 
-def graphIntraByDay(fic, str):
-    list_y = []
-    list_x = []
-    list_date = []
-    with open(fic, 'r') as f:
-        obj = csv.reader(f)
-        for ligne in obj:
-            if(ligne[0] != 'date'):
-                list_date.append(ligne[0])
-            if(ligne[1] != "value"):
-                if(str == "distance"):
-                    list_y.append(float(ligne[1]) * 1.515)
-                else:
-                    list_y.append(int(ligne[1]))
+"""
+Input : file : url of the file
+         day_start, day_end : respectively the start day and the end day of the window to observe
+                               in the form "YYYY-MM-DD 
+         hour_start, hour_end : espectively the start and end time of the window to observe
+                                in the form "HH:MM:SS"
     
-    for i in range(len(list_y)):
-        list_x.append(i)
-
-    x = np.array(list_x)
-    y = np.array(list_y)
-
-    plt.plot(x, y)
-    plt.xticks(list_x, list_date, color='r', rotation="vertical")
-    plt.title(str +" / Days")
-    plt.show()
-
-def getListFenetre(fic, jour_debut, min_debut, jour_fin, min_fin):
+Output : A list of the data to observe in the given window
+"""
+def getListFenetre(file, day_start, hour_start, day_end, hour_end):
     temp = []
     temp2 = []
-    with open(fic, 'r') as f:
+    with open(file, 'r') as f:
         obj = csv.reader(f)
+        next(obj)
         for row in obj:
             temp.append(row)
-            if((row[0] == jour_fin) & (row[1] == min_fin)):
+            if((row[0] == day_end) & (row[1] == hour_end)):
                 break
         for row in reversed(temp):
             temp2.append(row)
-            if((row[0] == jour_debut) & (row[1] == min_debut)):
+            if((row[0] == day_start) & (row[1] == hour_start)):
                 break
-        final = list(reversed(temp2))
-        return final
+        DataWindow = list(reversed(temp2))
+        temp = []
+        for data in DataWindow:
+            temp.append(data[0] +'|'+ data[1])
+        if(not(day_start + '|' + hour_start in temp)):
+            return False
+        if(not(day_end + '|' + hour_end in temp)):
+            return False
+        return DataWindow
 
-def grapheHRbyFen(fic, MIN, jour_debut, min_debut, jour_fin, min_fin):
-    
-    list_y = []
-    list_y_moy = []
-    list_x = []
-    list_x_moy = []
-    list_min= []
-    list_min_moy = []
-    fenetre = getListFenetre(fic, jour_debut, min_debut, jour_fin, min_fin) 
-    for ligne in fenetre:
-        if(ligne[1] != 'time'):
-            list_min.append(ligne[1])
-        if(ligne[2] != 'value'):
-            list_y.append(int(ligne[2]))
-    sum = 0
-    for i in range(len(list_y)):
-        list_x.append(i)
-
-    for i in range(1,len(list_y)):
-        if (i % MIN == 0):
-            list_y_moy.append(sum/MIN)
-            list_x_moy.append(list_x[i])
-            list_min_moy.append(list_min[i])
-            sum = 0
-        else:
-            sum += list_y[i]
-        
-
-    x = np.array(list_x_moy)
-    y = np.array(list_y_moy)
-
-    plt.plot(x, y)
-    plt.xticks(list_x_moy, list_min_moy, color='r', rotation="vertical")
-    plt.title("HR / Min")
-    plt.show(block = False)
-
+"""
+Additional Function for a next Update
+"""
 def graphSleepByDay(file):
     list_mAwake = []
     list_mAsleep = []
@@ -109,9 +64,7 @@ def graphSleepByDay(file):
     for i in range(len(list_mAwake)):
         list_x.append(i)
 
-    print(list_x)
     list_date.reverse()
-    print(list_date)
 
     x = np.array(list_x)
     y_Awake = np.array(list_mAwake)
@@ -129,4 +82,88 @@ def graphSleepByDay(file):
     plt.legend()
     plt.show()
 
+"""
+Input : file_list : a list of file url
+        mean : The spacing between each value, all values are calculated from the average of all spacing values
+        day_start, day_end : respectively the start day and the end day of the window to observe
+                               in the form "YYYY-MM-DD 
+        hour_start, hour_end : espectively the start and end time of the window to observe
+                                in the form "HH:MM:SS"
 
+Output : A graph with the number of curves as elements in the list passed in parameter on the same graph
+"""
+def graphList(file_list, mean, day_start, hour_start, day_end, hour_end):
+    fenetre_list = []
+    for file in file_list:
+        fen = getListFenetre(file,day_start, hour_start, day_end, hour_end)
+        if(fen == False):
+            mb.showerror("ERREUR", "Revoyez votre fenetre, il n'a a pas toutes les donnée dans cette fenetre")
+            return
+        fenetre_list.append(fen)
+            
+    if(not(TestWindow(fenetre_list))):
+        mb.showerror("Erreur", "Le graphe n'a pas pus etre créer car vous n'avez pas le meme nombre de valeurs sur cette fenetre de temps")
+        return
+    for i in range(0,len(file_list)):
+        x = []
+        y = []
+        for row in fenetre_list[i]:
+            x.append(row[0] + " " + row[1])
+            y.append(int(row[2]))
+        GraphLegend = file_list[i].split('_')[1]
+        plt.plot(x,y, label= GraphLegend)
+    a = []
+    b = []
+    for i in range(1,len(x)):
+        if (i % mean == 0):
+            a.append(i)
+            b.append(x[i])
+    plt.xticks(a,b, rotation="vertical")
+    plt.legend()
+    plt.show()
+    
+"""
+Input : file_list : a list of file url
+        mean : The spacing between each value, all values are calculated from the average of all spacing values
+        day_start, day_end : respectively the start day and the end day of the window to observe
+                               in the form "YYYY-MM-DD 
+        hour_start, hour_end : espectively the start and end time of the window to observe
+                                in the form "HH:MM:SS"
+
+Output : A graph for each file in the list passed in parameter
+"""
+def graphListSolo(file_list, MIN, day_start, hour_start, day_end, hour_end):
+    fenetre_list = []
+    for file in file_list:
+        fen = getListFenetre(file,day_start, hour_start, day_end, hour_end)
+        if(fen == False):
+            mb.showerror("ERREUR", "Revoyez votre fenetre, il n'a a pas toutes les donnée dans cette fenetre")
+            return
+        fenetre_list.append(fen)
+            
+    
+    for i in range(0,len(file_list)):
+        x = []
+        y = []
+        for row in fenetre_list[i]:
+            x.append(row[0] + " " + row[1])
+            y.append(int(row[2]))
+        plt.figure(i)
+        GraphLegend = file_list[i].split('_')[1]
+        plt.title(GraphLegend + " / min")
+        a = []
+        b = []
+        for i in range(1,len(x)):
+            if (i % MIN == 0):
+                a.append(i)
+                b.append(x[i])
+        plt.xticks(a,b, rotation="vertical")
+        plt.plot(x,y)
+    plt.show()
+
+def TestWindow(win):
+    value = len(win[0])
+    for i in range(1,len(win)):
+        if (len(win[i]) != value):
+            return False
+    return True

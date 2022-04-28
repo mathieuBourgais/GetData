@@ -1,22 +1,30 @@
 import csv
 
+list = ['heart', 'steps', 'floors', 'elevation', 'distance']
+
 col_sleep = ['date','minutesAwake','minutesAsleep','minutesToFallAsleep','timeInBed']
-col_hr = ['date','time','value']
-col_intra = ['date', 'value']
+col = ['date','time','value']
+col_cal = ['date' , 'level', 'mets', 'time' ,'value']
 
 # Créer un fichier CSV pour les données de sommeil
 # n-fic : nom du ficier
 # rq : resultat obtenu apres la requete
 # date : la date
 
-def initCSV(n_fic, n_col):
+def initCSV(n_fic, type):
     fichier = open(n_fic,'a')
     with fichier:    
-        obj = csv.DictWriter(fichier, fieldnames=n_col)
-        obj.writeheader()
+        if(type in list):
+            obj = csv.DictWriter(fichier, fieldnames=col)
+            obj.writeheader()
+        elif(type == "calories"):
+            obj = csv.DictWriter(fichier, fieldnames=col_cal)
+            obj.writeheader()
+        elif(type == "sleep"):
+            pass
+
 
 def createCSV_Sleep (n_fic, rq):
-
     fichier = open(n_fic,'a')
     with fichier:    
         obj = csv.DictWriter(fichier, fieldnames=col_sleep)
@@ -29,22 +37,18 @@ def createCSV_Sleep (n_fic, rq):
             res['timeInBed'] = v["timeInBed"]
             obj.writerow(res)
 
-def createCSV_HR (n_fic, rq, date):
-
+def createCSV (n_fic, rq, date, type):
     fichier = open(n_fic,'a')
-    with fichier:    
-        obj = csv.DictWriter(fichier, fieldnames=col_hr)
-
-        for v in rq:
-            v['date'] = date
-            obj.writerow(v)
-
-def createCSV_INTRA(n_fic, rq):
-    fichier = open(n_fic,'a')
-    with fichier:    
-        obj = csv.DictWriter(fichier, fieldnames=col_intra)
-        for v in rq:
-            res = dict()
-            res['date'] = v["dateTime"]
-            res['value'] = v["value"]
-            obj.writerow(res)
+    with fichier: 
+        if(type in list):  
+            obj = csv.DictWriter(fichier, fieldnames=col)
+            for v in rq:
+                v['date'] = date
+                obj.writerow(v)
+        elif(type == "calories"):
+            obj = csv.DictWriter(fichier, fieldnames=col_cal)
+            for v in rq:
+                v['date'] = date
+                obj.writerow(v)
+        elif(type == "sleep"):
+            pass

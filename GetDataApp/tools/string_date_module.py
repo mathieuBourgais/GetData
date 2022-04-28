@@ -1,6 +1,6 @@
 import datetime
 
-MAX_YEAR = 2022
+MAX_YEAR = 2050
 MIN_YEAR = 2000
 
 
