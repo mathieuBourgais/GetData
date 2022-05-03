@@ -1,3 +1,4 @@
+import platform
 import tkinter as tk
 from tkinter import messagebox as mb
 from tkinter import filedialog as fd
@@ -135,12 +136,14 @@ class getData(tk.Frame):
     def action(self, action):
         if(not(self.isValidChamp())):
             return
+        plt = platform.system()
+        if(plt == "Windows"):
+            sep = '\\'
+        else:
+            sep = '/'
         d = string_to_date(self.entry_DATE_START.get())
-        if(action == "sleep"):
-            nom_fichier = 'data/data_sleep_' + self.entry_DATE_START.get() + '_to_'+ self.entry_DATE_END.get() + '.csv'
-            initCSV(nom_fichier, "sleep")
-        elif(action =="heart"):
-            nom_fichier = 'data/data_heart_rate_' + self.entry_DATE_START.get() + '_to_'+ self.entry_DATE_END.get() + '.csv'
+        if(action =="heart"):
+            nom_fichier = 'data' + sep + 'data_heart_rate_' + self.entry_DATE_START.get() + '_to_'+ self.entry_DATE_END.get() + '.csv'
             initCSV(nom_fichier, "heart")
         else:
             nom_fichier = 'data/data_' + action + '_' + self.entry_DATE_START.get() + '_to_' + self.entry_DATE_END.get() + '.csv'

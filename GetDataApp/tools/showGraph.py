@@ -40,6 +40,7 @@ def getListFenetre(file, day_start, hour_start, day_end, hour_end):
 """
 Additional Function for a next Update
 """
+
 def graphSleepByDay(file):
     list_mAwake = []
     list_mAsleep = []
