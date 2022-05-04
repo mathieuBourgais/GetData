@@ -1,3 +1,4 @@
+from distutils import filelist
 import platform
 import tkinter as tk
 from tkinter import messagebox as mb
@@ -5,6 +6,7 @@ from tkinter import filedialog as fd
 import os
 import fitbit
 from datetime import  timedelta
+from GraphFile import GraphFile, ListGrapheFile
 
 
 from tools.createCSV import createCSV, createCSV_Sleep, initCSV
@@ -168,104 +170,103 @@ class Graph(tk.Frame):
         self.filepath = ""
         self.fileType = ""
         self.list_file = []
+        self.GraphList = ListGrapheFile([])
 
     # LabelFrame
         self.labelFrame = tk.LabelFrame(parent, text="Graphics", padx=20, pady=20)
-        self.scopeframe = tk.LabelFrame(self.labelFrame, text="Scope : (Use only for Heartrate)")
     # Variables
         self.chkValue = tk.BooleanVar()
-        self.text = tk.StringVar()
-        self.text.set("file :")
+        self.filecreated = tk.StringVar()
+        self.filechoosed = tk.StringVar()
+        self.filechoosed.set("File choosed :")
+        self.filecreated.set("File created :")
     # Labels
-        self.label_DATE_START = tk.Label(self.scopeframe, text="Quel jour de debut ? ")
-        self.label_DATE_END = tk.Label(self.scopeframe, text="Quel jour de fin ? ")
-        self.label_HOUR_START = tk.Label(self.scopeframe, text="Quel minute de debut ? ")
-        self.label_HOUR_END = tk.Label(self.scopeframe, text="Quel minute de fin ? ")
-        self.label_PATH = tk.Label(self.labelFrame, textvariable=self.text)
-        self.label_MIN = tk.Label(self.scopeframe, text="Mean of time")
+        self.label_FILE_CHOOSED = tk.Label(self.labelFrame, textvariable= self.filechoosed)
+        self.label_FILE_CREATED = tk.Label(self.labelFrame, textvariable=self.filecreated)  
     # Buttons
         self.button_BROWSE = tk.Button(self.labelFrame, text="BROWSE", command=self.browseFile)
         self.button_SHOW = tk.Button(self.labelFrame, text="SHOW", command=self.show)
+        """self.show"""
         self.button_REMOVE = tk.Button(self.labelFrame, text="REMOVE FILES", command=self.removeFiles)
+        self.button_CREATE = tk.Button(self.labelFrame, text="CREATE", command= self.create)
     # Entries
-        self.entry_DATE_START = tk.Entry(self.scopeframe)
-        self.entry_DATE_END = tk.Entry(self.scopeframe)
-        self.entry_HOUR_START = tk.Entry(self.scopeframe)
-        self.entry_HOUR_END = tk.Entry(self.scopeframe)
-        self.entry_MIN = tk.Entry(self.scopeframe)
+        self.entry_DATE_START = tk.Entry(self.labelFrame)
+        self.entry_DATE_END = tk.Entry(self.labelFrame)
+        self.entry_MIN = tk.Entry(self.labelFrame)
     # CheckButtons
-        self.checkbox = tk.Checkbutton(self.scopeframe, text="ensemle", variable = self.chkValue )
+        self.checkbox = tk.Checkbutton(self.labelFrame, text="In the same window", variable = self.chkValue)
 
         self.placeComponent()
         
     def placeComponent(self):
     # Labels
-        self.label_PATH.grid(row = 0, column= 0, sticky=tk.W)
-        self.label_DATE_START.grid(row = 0, column=0)
-        self.label_HOUR_START.grid(row = 1, column=0)
-        self.label_DATE_END.grid(row = 0, column= 2)
-        self.label_HOUR_END.grid(row = 1, column= 2)
-        self.label_MIN.grid(row = 2, column= 0)
+        self.label_FILE_CHOOSED.grid(row = 0, column= 0, sticky=tk.W, columnspan= 3)
+        self.label_FILE_CREATED.grid(row = 5, column = 0, sticky=tk.W, columnspan= 3)
+        tk.Label(self.labelFrame, text="Start date ").grid(row = 2, column=0)
+        tk.Label(self.labelFrame, text="End date ").grid(row = 3, column= 0)
+        tk.Label(self.labelFrame, text="Mean of time").grid(row = 4, column= 0)
     # Buttons
         self.button_BROWSE.grid(row = 1, column= 0, sticky=tk.W)
         self.button_REMOVE.grid(row = 1, column = 1, sticky=tk.W , ipadx = 5)
-        self.button_BROWSE.grid(row = 1, column= 0)
-        self.button_SHOW.grid(row = 2, column=1, padx = 10,ipadx=10)
+        self.button_CREATE.grid(row = 4, column = 2)
+        self.button_SHOW.grid(row = 6, column=1, padx = 10,ipadx=10)
     # Entries       
-        self.entry_DATE_START.grid(row = 0, column=1)
-        self.entry_HOUR_START.grid(row=1, column=1)
-        self.entry_DATE_END.grid(row = 0, column=3)
-        self.entry_HOUR_END.grid(row=1, column=3)
-        self.entry_MIN.grid(row = 2, column=1)
+        self.entry_DATE_START.grid(row = 2, column=1)
+        #self.entry_HOUR_START.grid(row=1, column=1)
+        self.entry_DATE_END.grid(row = 3, column=1)
+        #self.entry_HOUR_END.grid(row=1, column=3)
+        self.entry_MIN.grid(row = 4, column=1)
     # CheckButtons
-        self.checkbox.grid(row = 2, column=3)
+        self.checkbox.grid(row = 3, column=2)
     # LabelFrame
-        self.scopeframe.grid(row = 2)
+        #self.scopeframe.grid(row = 2)
         self.labelFrame.grid()
 
     # Pour les test a mettre en commentaire des la vrai publicataion de l'application
-        self.entry_DATE_START.insert(0,'2022-04-05')
-        self.entry_DATE_END.insert(0,'2022-04-05')
-        self.entry_HOUR_START.insert(0,'06:00:00')
-        self.entry_HOUR_END.insert(0,'15:00:00')
+        self.entry_DATE_START.insert(0,'YYYY-MM-DD_HH:MM:SS')
+        self.entry_DATE_END.insert(0,'YYYY-MM-DD_HH:MM:SS')
         self.entry_MIN.insert(0,'60')
 
     def browseFile(self):
-        
         self.filepath = fd.askopenfilename(initialdir = os.getcwd(), title = "Select a File", filetypes = (("Text files", "*.csv*"), ("all files", "*.*")))
-        if (self.filepath in self.list_file):
-            mb.showerror("File", "Le fichier est deja ouvert")
+        self.setText(self.filechoosed,"File choosed : " + self.filepath)
+        
+    
+    def create(self):
+        if(self.filepath == ""):
             return
-        self.filepathText = self.filepathText + self.filepath + '\n'
-        self.setText(self.filepathText)
-        self.list_file.append(self.filepath)
-        filepathsplitted = self.filepath.split('/')
-        namefile = filepathsplitted[len(filepathsplitted) - 1]
-        self.fileType = namefile.split('_')[1] 
+        if(not(self.isValidChamp())):
+            return
+        g = GraphFile(self.filepath, self.entry_DATE_START.get(), self.entry_DATE_END.get(), int(self.entry_MIN.get()))
+        self.list_file.append(g)
+        self.setText(self.filecreated, self.filecreated.get() +  self.filepath + '\n')
+        self.setText(self.filechoosed, "File choosed :")
+        self.filepath = ""
         
     def removeFiles(self):
         self.list_file = []
-        self.filepathText = ""
-        self.setText("file :")
+        self.filepath = ""
+        self.setText(self.filechoosed, "File choosed :")
+        self.setText(self.filecreated, "File created :")
 
-    def setText(self, str):
-        self.text.set(str)
+    def setText(self, var,str):
+        var.set(str)
 
     def isValidChamp(self):
-        if ((self.entry_DATE_START.get() == "") | (self.entry_DATE_END.get() == "") | (self.entry_HOUR_START.get() == "") | (self.entry_HOUR_END.get() == "") | (self.entry_MIN.get() == "")):
+        if ((self.entry_DATE_START.get() == "") | (self.entry_DATE_END.get() == "") | (self.entry_MIN.get() == "")):
             mb.showerror("Erreur", "Veuillez remplir tous les champs")
             return False
-        if(not(isValidDate(self.entry_DATE_START.get()))):
-            mb.showerror("Erreur", "Le champ date de debut n'est pas de la bonne forme ou la date n'existe pas\n Exemple 2022-04-21 (YYYY-MM-DD)")
+        if(not(isValidDate(self.entry_DATE_START.get().split('_')[0]))):
+            mb.showerror("Erreur", "La date de debut n'est pas de la bonne forme ou la date n'existe pas\n Exemple 2022-04-21 (YYYY-MM-DD)")
             return False
-        if(not(isValidDate(self.entry_DATE_END.get()))):
-            mb.showerror("Erreur", "Le champ date de fin n'est pas de la bonne forme ou la date n'existe pas\n Exemple 2022-04-21 (YYYY-MM-DD)")
+        if(not(isValidDate(self.entry_DATE_END.get().split('_')[0]))):
+            mb.showerror("Erreur", "La date de fin n'est pas de la bonne forme ou la date n'existe pas\n Exemple 2022-04-21 (YYYY-MM-DD)")
             return False
-        if(not(isValidTime(self.entry_HOUR_START.get()))):
-             mb.showerror("Erreur", "Le champ heure de fin n'est pas de la bonne forme ou la date n'existe pas\n Exemple 2022-04-21 (YYYY-MM-DD)")
+        if(not(isValidTime(self.entry_DATE_START.get().split('_')[1]))):
+             mb.showerror("Erreur", "L'heure de debut n'est pas de la bonne forme ou l'horraire n'existe pas\n Exemple 12:00:00 (HH:MM:SS)")
              return False
-        if(not(isValidTime(self.entry_HOUR_END.get()))):
-             mb.showerror("Erreur", "Le champ heure de fin n'est pas de la bonne forme ou la date n'existe pas\n Exemple 2022-04-21 (YYYY-MM-DD)")
+        if(not(isValidTime(self.entry_DATE_END.get().split('_')[1]))):
+             mb.showerror("Erreur", "L'heure de fin n'est pas de la bonne forme ou l'horraire n'existe pas\n Exemple 12:00:00 (HH:MM:SS)")
              return False
         if(not(self.entry_MIN.get().isdigit())):
             mb.showerror("Erreur", "Le champ moyenne doit etre un nombre")
@@ -273,12 +274,11 @@ class Graph(tk.Frame):
         return True
     
     def show(self):
-        if(not(self.isValidChamp())):
-            return
-        if self.chkValue.get()  == True:
-            graphList(self.list_file, int(self.entry_MIN.get()), self.entry_DATE_START.get(), self.entry_HOUR_START.get(), self.entry_DATE_END.get(), self.entry_HOUR_END.get())
+        g = ListGrapheFile(self.list_file)
+        if self.chkValue.get() == True:
+            g.showIn()
         else :
-            graphListSolo(self.list_file, int(self.entry_MIN.get()), self.entry_DATE_START.get(), self.entry_HOUR_START.get(), self.entry_DATE_END.get(), self.entry_HOUR_END.get())
+            g.show()
 
     
 class MainApplication(tk.Frame):
