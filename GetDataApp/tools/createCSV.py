@@ -12,7 +12,7 @@ col_cal = ['date' , 'level', 'mets', 'time' ,'value']
 # date : la date
 
 def initCSV(n_fic, type):
-    fichier = open(n_fic,'a')
+    fichier = open(n_fic,'a', newline='')
     with fichier:    
         if(type in list):
             obj = csv.DictWriter(fichier, fieldnames=col)
@@ -25,8 +25,8 @@ def initCSV(n_fic, type):
 
 
 def createCSV_Sleep (n_fic, rq):
-    fichier = open(n_fic,'a')
-    with fichier:    
+    fichier = open(n_fic,'a', newline='')
+    with fichier:
         obj = csv.DictWriter(fichier, fieldnames=col_sleep)
         for v in rq:
             res = dict()

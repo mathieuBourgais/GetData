@@ -1,17 +1,15 @@
-from distutils import filelist
 import platform
 import tkinter as tk
 from tkinter import messagebox as mb
 from tkinter import filedialog as fd
 import os
 import fitbit
-from datetime import  timedelta
+from datetime import  timedelta 
 from GraphFile import GraphFile, ListGrapheFile
 
 
 from tools.createCSV import createCSV, createCSV_Sleep, initCSV
 from tools.string_date_module import isValidDate, date_to_string, string_to_date, deltaDay, isValidTime
-from tools.showGraph import graphList, graphListSolo
 import tools.gather_keys_oauth2 as Oauth2
 
 class ConnectBar(tk.Frame):
@@ -140,15 +138,15 @@ class getData(tk.Frame):
             return
         plt = platform.system()
         if(plt == "Windows"):
-            sep = '\\'
+            start = ""
         else:
-            sep = '/'
+            start = 'data/'
         d = string_to_date(self.entry_DATE_START.get())
         if(action =="heart"):
-            nom_fichier = 'data' + sep + 'data_heart_rate_' + self.entry_DATE_START.get() + '_to_'+ self.entry_DATE_END.get() + '.csv'
+            nom_fichier = start + 'data_heart_rate_' + self.entry_DATE_START.get() + '_to_'+ self.entry_DATE_END.get() + '.csv'
             initCSV(nom_fichier, "heart")
         else:
-            nom_fichier = 'data/data_' + action + '_' + self.entry_DATE_START.get() + '_to_' + self.entry_DATE_END.get() + '.csv'
+            nom_fichier = start + 'data_' + action + '_' + self.entry_DATE_START.get() + '_to_' + self.entry_DATE_END.get() + '.csv'
             initCSV(nom_fichier, action)  
         if(action == "sleep"):
             url = "https://api.fitbit.com/1.2/user/-/sleep/date/"+ self.entry_DATE_START.get() + "/" + self.entry_DATE_END.get() + ".json"
@@ -230,6 +228,11 @@ class Graph(tk.Frame):
     def browseFile(self):
         self.filepath = fd.askopenfilename(initialdir = os.getcwd(), title = "Select a File", filetypes = (("Text files", "*.csv*"), ("all files", "*.*")))
         self.setText(self.filechoosed,"File choosed : " + self.filepath)
+        split = self.filepath.split('_')
+        self.entry_DATE_START.delete(0, len(self.entry_DATE_START.get()))
+        self.entry_DATE_END.delete(0, len(self.entry_DATE_END.get()))
+        self.entry_DATE_START.insert(0,split[len(split) - 3] +"_00:00:00")
+        self.entry_DATE_END.insert(0,split[len(split) -1].split('.')[0] + "_23:59:00")
         
     
     def create(self):
