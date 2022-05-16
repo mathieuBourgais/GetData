@@ -55,7 +55,7 @@ class ConnectBar(tk.Frame):
     def connect_client(self):
         global CURRENT_CLIENT
         if ((self.entry_CLIENT_ID.get() == "") | (self.entry_CLIENT_SECRET.get() == "")):
-            mb.showerror("Erreur", "Veuillez remplir tous les champs")
+            mb.showerror("Error", "Veuillez remplir tous les champs")
             return
         CLIENT_ID = self.entry_CLIENT_ID.get().strip()
         CLIENT_SECRET = self.entry_CLIENT_SECRET.get().strip()
@@ -74,8 +74,8 @@ class getData(tk.Frame):
     # LabelFrame
         self.labelFrame = tk.LabelFrame(parent, text="Get Data")
     # Labels
-        self.label_DATE_START = tk.Label(self.labelFrame, text="Quel jour de debut ? ")
-        self.label_DATE_END = tk.Label(self.labelFrame, text="Quel jour de fin ? ")
+        self.label_DATE_START = tk.Label(self.labelFrame, text= "What start day ? ")
+        self.label_DATE_END = tk.Label(self.labelFrame, text="What end day ? ")
     # Buttons
         #self.button_SLEEP = tk.Button(self.labelFrame, text="SLEEP", command=lambda: self.action("sleep"))
         self.button_HR = tk.Button(self.labelFrame, text="HEART RATE", command=lambda: self.action("heart"))
@@ -111,25 +111,25 @@ class getData(tk.Frame):
         
     def isValidChamp(self):
         if ((self.entry_DATE_START.get() == "") | (self.entry_DATE_END.get() == "")):
-            mb.showerror("Erreur", "Veuillez remplir tous les champs")
+            mb.showerror("Error", "Veuillez remplir tous les champs")
             return False
         if(not(isValidDate(self.entry_DATE_START.get()))):
-            mb.showerror("Erreur", "Le champ date de debut n'est pas de la bonne forme ou la date n'existe pas\n Exemple 2022-04-21 (YYYY-MM-DD)")
+            mb.showerror("Error", "Le champ date de debut n'est pas de la bonne forme ou la date n'existe pas\n Exemple 2022-04-21 (YYYY-MM-DD)")
             return False
         if(not(isValidDate(self.entry_DATE_END.get()))):
-            mb.showerror("Erreur", "Le champ date de fin n'est pas de la bonne forme ou la date n'existe pas\n Exemple 2022-04-21 (YYYY-MM-DD)")
+            mb.showerror("Error", "Le champ date de fin n'est pas de la bonne forme ou la date n'existe pas\n Exemple 2022-04-21 (YYYY-MM-DD)")
             return False
         return True
 
     def isValidChamp(self):
         if ((self.entry_DATE_START.get() == "") | (self.entry_DATE_END.get() == "")):
-            mb.showerror("Erreur", "Veuillez remplir tous les champs")
+            mb.showerror("Error", "Veuillez remplir tous les champs")
             return False
         if(not(isValidDate(self.entry_DATE_START.get()))):
-            mb.showerror("Erreur", "Le champ date de debut n'est pas de la bonne forme ou la date n'existe pas\n Exemple 2022-04-21 (YYYY-MM-DD)")
+            mb.showerror("Error", "Le champ date de debut n'est pas de la bonne forme ou la date n'existe pas\n Exemple 2022-04-21 (YYYY-MM-DD)")
             return False
         if(not(isValidDate(self.entry_DATE_END.get()))):
-            mb.showerror("Erreur", "Le champ date de fin n'est pas de la bonne forme ou la date n'existe pas\n Exemple 2022-04-21 (YYYY-MM-DD)")
+            mb.showerror("Error", "Le champ date de fin n'est pas de la bonne forme ou la date n'existe pas\n Exemple 2022-04-21 (YYYY-MM-DD)")
             return False
         return True
 
@@ -257,22 +257,22 @@ class Graph(tk.Frame):
 
     def isValidChamp(self):
         if ((self.entry_DATE_START.get() == "") | (self.entry_DATE_END.get() == "") | (self.entry_MIN.get() == "")):
-            mb.showerror("Erreur", "Veuillez remplir tous les champs")
+            mb.showerror("Error", "Veuillez remplir tous les champs")
             return False
         if(not(isValidDate(self.entry_DATE_START.get().split('_')[0]))):
-            mb.showerror("Erreur", "La date de debut n'est pas de la bonne forme ou la date n'existe pas\n Exemple 2022-04-21 (YYYY-MM-DD)")
+            mb.showerror("Error", "La date de debut n'est pas de la bonne forme ou la date n'existe pas\n Exemple 2022-04-21 (YYYY-MM-DD)")
             return False
         if(not(isValidDate(self.entry_DATE_END.get().split('_')[0]))):
-            mb.showerror("Erreur", "La date de fin n'est pas de la bonne forme ou la date n'existe pas\n Exemple 2022-04-21 (YYYY-MM-DD)")
+            mb.showerror("Error", "La date de fin n'est pas de la bonne forme ou la date n'existe pas\n Exemple 2022-04-21 (YYYY-MM-DD)")
             return False
         if(not(isValidTime(self.entry_DATE_START.get().split('_')[1]))):
-             mb.showerror("Erreur", "L'heure de debut n'est pas de la bonne forme ou l'horraire n'existe pas\n Exemple 12:00:00 (HH:MM:SS)")
+             mb.showerror("Error", "L'heure de debut n'est pas de la bonne forme ou l'horraire n'existe pas\n Exemple 12:00:00 (HH:MM:SS)")
              return False
         if(not(isValidTime(self.entry_DATE_END.get().split('_')[1]))):
-             mb.showerror("Erreur", "L'heure de fin n'est pas de la bonne forme ou l'horraire n'existe pas\n Exemple 12:00:00 (HH:MM:SS)")
+             mb.showerror("Error", "L'heure de fin n'est pas de la bonne forme ou l'horraire n'existe pas\n Exemple 12:00:00 (HH:MM:SS)")
              return False
         if(not(self.entry_MIN.get().isdigit())):
-            mb.showerror("Erreur", "Le champ moyenne doit etre un nombre")
+            mb.showerror("Error", "Le champ moyenne doit etre un nombre")
             return False
         return True
     
@@ -294,5 +294,6 @@ class MainApplication(tk.Frame):
 
 if __name__ == "__main__":
     root = tk.Tk()
+    root.title("GetData")
     MainApplication(root).grid()
     root.mainloop()

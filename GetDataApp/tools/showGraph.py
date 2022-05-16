@@ -1,4 +1,5 @@
 import csv
+from distutils import file_util
 import numpy as np
 import matplotlib.pyplot as plt
 from tkinter import messagebox as mb
@@ -16,21 +17,36 @@ Output : A list of the data to observe in the given window
 def getListFenetre(file, day_start, hour_start, day_end, hour_end):
     temp = []
     temp2 = []
+    filetype = file.split('_')[1]
     with open(file, 'r') as f:
         obj = csv.reader(f)
         next(obj)
         for row in obj:
-            temp.append(row)
-            if((row[0] == day_end) & (row[1] == hour_end)):
-                break
+            
+            if(filetype == "calories"):
+                temp.append(row)
+                if((row[0] == day_end) & (row[3] == hour_end)):
+                    break
+            else:
+                temp.append(row)
+                if((row[0] == day_end) & (row[1] == hour_end)):
+                    break
         for row in reversed(temp):
-            temp2.append(row)
-            if((row[0] == day_start) & (row[1] == hour_start)):
-                break
+            if(filetype == "calories"):
+                    temp2.append(row)
+                    if((row[0] == day_start) & (row[3] == hour_start)):
+                        break
+            else:
+                    temp2.append(row)
+                    if((row[0] == day_start) & (row[1] == hour_start)):
+                        break
         DataWindow = list(reversed(temp2))
         temp = []
         for data in DataWindow:
-            temp.append(data[0] +'|'+ data[1])
+            if(filetype == "calories"):
+                temp.append(data[0] + '|' + data[3])
+            else:
+                temp.append(data[0] +'|'+ data[1])
         if(not(day_start + '|' + hour_start in temp)):
             return False
         if(not(day_end + '|' + hour_end in temp)):

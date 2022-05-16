@@ -1,4 +1,6 @@
 import csv
+import os
+import sys
 from tkinter import messagebox as mb
 import numpy as np
 import matplotlib.pyplot as plt
@@ -10,6 +12,9 @@ class GraphFile:
         self.startDate = sd
         self.endDate = ed
         self.mean = m
+
+    def getTypeDataFile(self):
+        return self.filepath.split('_')[1]
 
     def getFilePath(self):
         return self.filepath
@@ -35,6 +40,7 @@ class ListGrapheFile:
 
     def show(self):
         fenetre_list = []
+        type_list = []
         fileList = self.getList()
         for file in fileList:
             splitd = file.getStartDate().split('_')
@@ -48,15 +54,24 @@ class ListGrapheFile:
                 mb.showerror("ERREUR", "Revoyez votre fenetre, il n'a a pas toutes les donnée dans cette fenetre")
                 return
             fenetre_list.append(fen)
-
+            type_list.append(file.getTypeDataFile())
         for i in range(0,len(fileList)):
             x = []
             y = []
             for row in fenetre_list[i]:
-                x.append(row[0] + " " + row[1])
-                y.append(int(row[2]))
+                
+                if(type_list[i] == "distance"):
+                    res = float(row[2]) * (1609.34)
+                    y.append(res)
+                    x.append(row[0] + " " + row[1])
+                elif(type_list[i] == "calories"):
+                    y.append(float(row[4]))
+                    x.append(row[0] + " " + row[3])
+                else:
+                    y.append(int(row[2]))
+                    x.append(row[0] + " " + row[1])
+                    
             plt.figure(i)
-            #GraphLegend = fileList[i].getFilePath().split('_')[1]
             plt.title(fileList[i].getFilePath())
             a = []
             b = []
@@ -71,6 +86,7 @@ class ListGrapheFile:
     def showIn(self):
         fenetre_list = []
         fileList = self.getList()
+        type_list = []
         for file in fileList:
             splitd = file.getStartDate().split('_')
             splite = file.getEndDate().split('_')
@@ -83,6 +99,7 @@ class ListGrapheFile:
                 mb.showerror("ERREUR", "Revoyez votre fenetre, il n'a a pas toutes les donnée dans cette fenetre")
                 return
             fenetre_list.append(fen)
+            type_list.append(file.getTypeDataFile())
                 
         if(not(TestWindow(fenetre_list))):
             mb.showerror("Erreur", "Le graphe n'a pas pus etre créer car vous n'avez pas le meme nombre de valeurs sur cette fenetre de temps")
@@ -95,7 +112,11 @@ class ListGrapheFile:
             title = title + fileList[i].getFilePath() + '\n' 
             for row in fenetre_list[i]:
                 x.append(row[0] + " " + row[1])
-                y.append(int(row[2]))
+                print(row[2].isdigit())
+                if(row[2].isdigit()):
+                    y.append(row[2])
+                else:
+                    y.append(int(row[2]))
             GraphLegend = fileList[i].getFilePath().split('_')[1]
             
             plt.plot(x,y, label= GraphLegend)
@@ -109,4 +130,3 @@ class ListGrapheFile:
         plt.legend()
         plt.title(title)
         plt.show()
-
