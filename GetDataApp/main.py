@@ -34,8 +34,8 @@ class ConnectBar(tk.Frame):
         self.entry_CLIENT_SECRET = tk.Entry(self.labelframe)
 
     # Pour les test a mettre en commentaire des la vrai publicataion de l'application
-        self.entry_CLIENT_ID.insert(0,'238D8K')
-        self.entry_CLIENT_SECRET.insert(0,'c1adab2e668a47f7123cba0da42a3319')
+    #    self.entry_CLIENT_ID.insert(0,'238D8K')
+    #    self.entry_CLIENT_SECRET.insert(0,'c1adab2e668a47f7123cba0da42a3319')
 
         self.placeComponent()
         
@@ -158,7 +158,7 @@ class getData(tk.Frame):
                 fit_statsHR = CURRENT_CLIENT.intraday_time_series('activities/' + action, base_date= str_d, detail_level='1min')
                 createCSV(nom_fichier, fit_statsHR['activities-'+ action +'-intraday']['dataset'], str_d, action)
                 d = d + timedelta(1)
-        mb.showinfo("Succes", "Le fichier a été créer")
+        mb.showinfo("Succes", "Le fichier a été créé")
 
 class Graph(tk.Frame):
     def __init__(self, parent):
