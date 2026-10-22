@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local credentials and environment files
+.env
+.env.*
+!.env.example
+credentials*.json
+token*.json
+
+# Temporary office lock files
+.~lock.*#
+
+# Generated health-data exports
+GetDataApp/data/data_*_to_*.csv
