@@ -1,0 +1,4 @@
+google-auth-oauthlib>=1.2,<2
+matplotlib
+numpy
+requests

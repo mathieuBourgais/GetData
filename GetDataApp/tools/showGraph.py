@@ -1,5 +1,4 @@
 import csv
-from distutils import file_util
 import numpy as np
 import matplotlib.pyplot as plt
 from tkinter import messagebox as mb
